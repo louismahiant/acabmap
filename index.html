@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" lang="en">
+    <meta name="viewport"
+        content="width=device-width, height=device-height, initial-scale=1, minimum-scale=1, user-scalable=no">
+    <title>ACAB Map (Archive)</title>
+    <meta name="description" content="AcabMap">
+    <link href="style.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css"
+        type="text/css" />
+</head>
+
+<body>
+    <div
+        style="background-color: #fafafa;color:black;position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index: 1000000;padding: .5em; text-align: center;">
+        Archive version of AcabMap. Last update from 12.09.2024.</div>
+    <a class="logo" href="#4.13/46.42/4.72">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 207.9 206.7">
+            <path
+                d="M207.9 176a29.8 29.8 0 01-2.4 11.9 32.2 32.2 0 01-6.7 9.8 30.7 30.7 0 01-9.9 6.6 30.3 30.3 0 01-12 2.4H31a30 30 0 01-12.1-2.4 31.6 31.6 0 01-9.8-6.5 29 29 0 01-6.7-9.8A29.9 29.9 0 010 176V30.8a30.7 30.7 0 012.4-12.1A29.8 29.8 0 019 9a30.2 30.2 0 019.8-6.6A30.9 30.9 0 0131 0h145.9a31.1 31.1 0 0122 9 33.3 33.3 0 016.6 9.7 30.7 30.7 0 012.4 12.1zm-42.3-5.7L114.8 36.9H97.2L42.3 170.3h16.2l15.2-36.7h59.2l13.8 36.7zm-37.9-50H78.9l25.2-62z"
+                fill="#1d1d1b" />
+        </svg>
+    </a>
+    <p>AcabMap requires javascript to work / </p>
+    </noscript>
+
+    <div id="app">
+        <header>
+            <a class="logo" href="#3.96/49.41/6.18">
+                <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 207.9 206.7">
+                    <path
+                        d="M207.9 176a29.8 29.8 0 01-2.4 11.9 32.2 32.2 0 01-6.7 9.8 30.7 30.7 0 01-9.9 6.6 30.3 30.3 0 01-12 2.4H31a30 30 0 01-12.1-2.4 31.6 31.6 0 01-9.8-6.5 29 29 0 01-6.7-9.8A29.9 29.9 0 010 176V30.8a30.7 30.7 0 012.4-12.1A29.8 29.8 0 019 9a30.2 30.2 0 019.8-6.6A30.9 30.9 0 0131 0h145.9a31.1 31.1 0 0122 9 33.3 33.3 0 016.6 9.7 30.7 30.7 0 012.4 12.1zm-42.3-5.7L114.8 36.9H97.2L42.3 170.3h16.2l15.2-36.7h59.2l13.8 36.7zm-37.9-50H78.9l25.2-62z"
+                        fill="#1d1d1b" />
+                </svg>
+            </a>
+            <div class="link" id="op">
+                <a id="contact" v-on:click="maptab=3; large=false; offset('left');  markerclean();">INFO</a>
+            </div>
+            <div class="break"></div>
+            <div id="geocoder" class="geocoder" v-on:click="maptab=search; offset('left');  markerclean();"></div>
+        </header>
+
+        <transition name="explore">
+            <div id="explore" v-show="zoom < 5">
+                <div class="exp_svg"></div>
+                <div class="link_explore">
+                    <a href="#11.59/50.8401/4.3638">Bruxelles</a>
+                    <a href="#11.77/48.8606/2.3385">Paris</a>
+                    <a href="#12.94/47.21602/-1.55199">Nantes</a>
+                </div>
+            </div>
+        </transition>
+
+        <transition name="slide-fade">
+            <div v-if="maptab" id="right" v-bind:class="{large: large}">
+
+                <a id="close" v-bind:class="{large: large}"
+                    v-on:click="maptab=0; large=false; offset('right'); markerclean();" title="Close the side tab">
+                    <svg width="30px" height="30px" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 0h24v24H0V0z" fill="none" />
+                        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+                    </svg>
+                </a>
+
+                <div v-if="maptab === search" id="content" class="tab">
+                    <p>Explore +1325 tags location, or find a precise place.</p>
+                </div>
+
+                <div v-if="maptab === 1" id="content" class="tab">
+                    <div class="adresse" v-html="place"></div>
+                    <div class="photo" v-html="content"></div>
+                </div>
+
+                <div v-if="maptab === 3" id="contact_form" class="tab">
+                    <p>The ACAB Map was a collaborative project collecting "ACAB / 1312" tags in public spaces across
+                        Europe.<br><br>
+                        From 2018 to 2024, the map documented over 1,600 tags, serving as a visual archive of a
+                        particular form of urban expression.
+                        <br><br>This project is presented for documentary and research purposes only. It does not
+                        promote or condone vandalism, nor does it endorse the messages depicted.
+                    </p>
+                    <p class="attr">
+                        v 1.1.5 — ©
+                        <a href="https://web.archive.org/web/20240909135553/https://www.mapbox.com/about/maps/"
+                            target="_blank">Mapbox</a>
+                        ©
+                        <a href="https://web.archive.org/web/20240909135553/http://www.openstreetmap.org/copyright"
+                            target="_blank">OpenStreetMap</a>
+                        &nbsp;&nbsp;
+                        <a href="https://web.archive.org/web/20240909135553/https://www.mapbox.com/map-feedback/"
+                            target="_blank">Improve this map</a>
+                    </p>
+                </div>
+            </div>
+        </transition>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="main.js"></script>
+
+</body>
+
+</html>
