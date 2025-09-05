@@ -116,7 +116,7 @@ map.on("click", function (a) {
 // Geocoder
 
 var search;
-fetch("/search.json")
+fetch("/acabmap/search.json")
   .then((response) => {
     return response.json();
   })
