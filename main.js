@@ -116,7 +116,7 @@ map.on("click", function (a) {
 // Geocoder
 
 var search;
-fetch("/data/search?nocache=1")
+fetch("/search.json")
   .then((response) => {
     return response.json();
   })
